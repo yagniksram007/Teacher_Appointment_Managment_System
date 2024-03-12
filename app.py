@@ -15,10 +15,8 @@ db = mysql.connector.connect(
   database="appointment"
 )
 mycursor = db.cursor()
-
 TEACHER_ID = ""
 STUDENT_ID = ""
-
 
 
 @app.route("/")
@@ -89,7 +87,7 @@ def dashboard_student():
     # Fetch teacher slots for the selected teacher
     selected_teacher_id = request.args.get('teacher_id')
     if selected_teacher_id:
-        query_teacher_slots = f"SELECT free_date, free_time FROM free_slot JOIN teacher_free_slot ON free_slot.free_id = teacher_free_slot.free_id WHERE teacher_free_slot.teacher_id='{selected_teacher_id}';"
+        query_teacher_slots = f"SELECT free_time FROM free_slot JOIN teacher_free_slot ON free_slot.free_id = teacher_free_slot.free_id WHERE teacher_free_slot.teacher_id='{selected_teacher_id}';"
         mycursor.execute(query_teacher_slots)
         teacher_slots = mycursor.fetchall()
     else:
@@ -97,6 +95,7 @@ def dashboard_student():
     
     # Pass the fetched data to the template
     return render_template('dashboard_student.html', student_name=student_name, available_teachers=available_teachers, teacher_slots=teacher_slots)
+
 
 # Route for fetching free time slots for a specific teacher
 @app.route('/get-teacher-free-slots/<teacher_id>')
@@ -196,10 +195,29 @@ def manage_slots():
     db.commit()
     return redirect(url_for('dashboard_teacher',id=TEACHER_ID))
 
+# Fetch appointment requests status from the database
+@app.route('/appointment-requests-status')
+def appointment_requests_status():
+    # Query to fetch appointment requests status
+    query = "SELECT teacher_name, status FROM appointment_requests;"
+    mycursor.execute(query)
+    appointment_requests_status = mycursor.fetchall()
+    
+    # Pass the fetched data to the template
+    return render_template('appointment_requests_status.html', appointment_requests_status=appointment_requests_status)
+
+
 @app.route('/appointment-success')
 def appointment_success():
     return render_template('appointment_success.html')
 
+@app.route('/teachlogout')
+def teachlogout():
+    return render_template('dashboard_teacher.html')
+
+@app.route('/slogout')
+def studentlogout():
+    return render_template('dashboard_student.html')
 
 
 if __name__ == '__main__':
