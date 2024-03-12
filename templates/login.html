@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Student Login</h2>
+
+        <form action="/login-student" method="post" id="loginForm">
+            
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+            <br> 
+
+    <a href="tlogin">Click here for Teacher's Login</a>
+        </form>
+    
+    </div>
+        <script>
+            // Show an alert if show_alert is True
+            alert("Invalid credentials!");
+        </script>
+        
+</body>
+</html>

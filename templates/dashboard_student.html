@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="../static/css/student.css">
+</head>
+<body>
+    <div class="container">
+         <h1>Welcome, {{ sname }}</h1>
+
+        <!-- View Available Teachers -->
+<section>
+    <h3>Available Teachers</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Teacher ID</th>
+                <th>Teacher Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in available_teachers %}
+                <tr>
+                    <td>{{ teacher[0] }}</td>
+                    <td>{{ teacher[1] }}</td>
+                    <td>{{ teacher[2] }}</td>
+                    <td>{{ teacher[3] }}</td>
+                    <td>
+                        <button onclick="viewTeacherSlots('{{ teacher[0] }}', '{{ teacher[1] }}')">View Slots</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+
+<label for="teacher">Select a Teacher:</label>
+<select name="teacher" id="teacher">
+    {% for teacher in available_teachers %}
+        <option value="{{ teacher.teacher_id }}">{{ teacher.tname }}</option>
+    {% endfor %}
+</select>
+
+
+        <!-- Request Appointment -->
+        <section id="requestAppointmentSection" style="display: none;">
+            <h3>Request Appointment</h3>
+            <form action="/request-appointment" method="post">
+                <label for="selectedSlot">Select a Slot:</label>
+                <select name="selectedSlot" id="selectedSlot" required>
+                    <!-- Teacher slots will be dynamically added here -->
+                </select>
+
+                <button type="submit">Request Appointment</button>
+            </form>
+        </section>
+
+        <!-- Appointment Requests Status -->
+        <section>
+            <h3>Appointment Requests Status</h3>
+            <ul>
+                <li>
+                    <span>Teacher Name</span>
+                    <span>Status: Pending</span>
+                </li>
+                <!-- Add more appointment requests as needed -->
+            </ul>
+        </section>
+
+        <!-- Logout Button -->
+
+    
+<section>
+    <h3>Want to logout?</h3>
+    <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</section>
+
+
+</div> <!-- Closing div for the container -->
+    </div>
+
+    <script src="static/js/script.js"></script>
+
+
+    <script>
+        function viewTeacherSlots(teacherId) {
+            // Code to fetch and display teacher's free slots
+            // Update #teacherName, #teacherSlotsList, and show #teacherSlotsSection
+            // Example: document.getElementById("teacherName").innerText = "Teacher Name";
+            //          document.getElementById("teacherSlotsList").innerHTML = "<li>Slot 1</li><li>Slot 2</li>";
+            //          document.getElementById("teacherSlotsSection").style.display = "block";
+
+            // For demonstration purposes, toggle visibility of the appointment request section
+            document.getElementById("requestAppointmentSection").style.display = "block";
+        }
+    </script>
+</body>
+</html>

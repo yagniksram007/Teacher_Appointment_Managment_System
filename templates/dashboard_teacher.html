@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="../static/css/teacher.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, Teacher!</h2>
+
+        <!-- Add New Free Slot -->
+        <section>
+            <h3>Add New Free Slot</h3>
+            <form action="/manage-slots" method="post">
+                <label for="slotDate">Date:</label>
+                <input type="date" id="slotDate" name="slotDate" required>
+
+                <label for="slotTime">Time:</label>
+                <input type="time" id="slotTime" name="slotTime" required>
+
+                <button type="submit">Add Slot</button>
+            </form>
+        </section>
+
+        <!-- Current Free Slots -->
+        <section>
+            <h3>Current Free Slots</h3>
+            <ul>
+                {% for slot in teacher_free_slots %}
+                    <li>
+                        <span>Date: {{ slot.date }}</span>
+                        <span>Time: {{ slot.time }}</span>
+                        <button onclick="updateSlot('{{ slot.id }}')">Update</button>
+                        <button onclick="deleteSlot('{{ slot.id }}')">Delete</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Appointment Requests -->
+        <section>
+            <h3>Appointment Requests</h3>
+            <ul>
+                {% for request in appointment_requests %}
+                    <li>
+                        <span>Student Name: {{ request.student_name }}</span>
+                        <span>Date: {{ request.date }}</span>
+                        <span>Time: {{ request.time }}</span>
+                        <button onclick="acceptRequest('{{ request.id }}')">Accept</button>
+                        <button onclick="rejectRequest('{{ request.id }}')">Reject</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <!-- Logout Button -->
+        <section>
+            <h3>Logout</h3>
+            <form action="/tlogout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </section>
+    </div> <!-- Closing div for the container -->
+
+    <script src="static/js/script.js"></script>
+    
+</body>
+</html>
