@@ -14,10 +14,13 @@ db = mysql.connector.connect(
   password="",
   database="appointment"
 )
+
 mycursor = db.cursor()
 TEACHER_ID = ""
 STUDENT_ID = ""
 
+TEACHERS_SLOT = None
+STUDNET_NAME = None
 
 @app.route("/")
 def root():
@@ -40,8 +43,9 @@ def login_student():
     #print(data[0][0])
     try:
         if int(data[0][0])>0:
+            id = str(data[0][0])
         # Redirect to the student dashboard upon successful login
-            return redirect(url_for('dashboard_student'))
+            return redirect(url_for('dashboard_student',sid=id))
     except Exception as e:
         flash('Invalid credentials', 'error')
         return render_template('login.html', show_alert = True)
@@ -65,33 +69,41 @@ def login_teacher():
             id = str(data[0][0])
             # print(f'dashboard_teacher/{id}')
         # Redirect to the student dashboard upon successful login
-            return redirect(url_for('dashboard_teacher',id=id))
+            return redirect(url_for('dashboard_teacher',tid=id))
     except Exception as e:
         flash('Invalid credentials', 'error')
         return render_template('teacherlogin.html', show_alert = True)
     
 # Route for rendering the student dashboard
-@app.route('/dashboard_student')
-def dashboard_student():
-    # Fetch available teachers from the database
+@app.route('/dashboard_student/<sid>',methods=["POST","GET"])
+def dashboard_student(sid):
+    global TEACHERS_SLOT
+    global STUDNET_NAME
+    global STUDENT_ID
+            # Fetch available teachers from the database
     query = "SELECT teacher_id, tname FROM teachers;"
     mycursor.execute(query)
     available_teachers = mycursor.fetchall()
-    
-    # Fetch student name from the database
-    student_id = request.form.get('sid')
-    query_student_name = f"SELECT sname FROM students WHERE sid='{student_id}';"
+            # print(available_teachers)
+            # Fetch student name from the database
+            # student_id = request.form.get('sid')
+    query_student_name = f"SELECT sid,sname FROM students WHERE sid='{sid}';"
     mycursor.execute(query_student_name)
     student_name = mycursor.fetchone()
-
+    id = str(student_name[0][0])
+    STUDENT_ID = student_name[0][0]
+    STUDNET_NAME = student_name[0][0]
+    teacher_slots = []
     # Fetch teacher slots for the selected teacher
-    selected_teacher_id = request.args.get('teacher_id')
-    if selected_teacher_id:
-        query_teacher_slots = f"SELECT free_time FROM free_slot JOIN teacher_free_slot ON free_slot.free_id = teacher_free_slot.free_id WHERE teacher_free_slot.teacher_id='{selected_teacher_id}';"
-        mycursor.execute(query_teacher_slots)
-        teacher_slots = mycursor.fetchall()
-    else:
-        teacher_slots = []  # If no teacher is selected, initialize an empty list
+    # selected_teacher_id = request.args.get('teacher_id')
+    # print(available_teachers)
+    # if selected_teacher_id:
+    #     query_teacher_slots = f"SELECT free_time FROM free_slot JOIN teacher_free_slot ON free_slot.free_id = teacher_free_slot.free_id WHERE teacher_free_slot.teacher_id='{selected_teacher_id}';"
+    #     mycursor.execute(query_teacher_slots)
+    #     teacher_slots = mycursor.fetchall()
+        
+    # else:
+    #     teacher_slots = []  # If no teacher is selected, initialize an empty list
     
     # Pass the fetched data to the template
     return render_template('dashboard_student.html', student_name=student_name, available_teachers=available_teachers, teacher_slots=teacher_slots)
@@ -110,9 +122,6 @@ def get_teacher_free_slots(teacher_id):
 
     # Return the free time slots as a JSON response
     return jsonify({'teacher_id': teacher_id, 'free_time_slots': free_time_slots})
-
-
-
 
 # Route for fetching teacher slots
 @app.route('/get-teacher-slots/<teacher_id>')
@@ -143,13 +152,13 @@ def get_teacher_slots(teacher_id):
     return jsonify({'teacherName': teacher_name, 'slotsHTML': slots_html})
 
 # Route for rendering the teacher dashboard
-@app.route('/dashboard_teacher/<id>')
-def dashboard_teacher(id):
+@app.route('/dashboard_teacher/<tid>')
+def dashboard_teacher(tid):
     # print(id)
     global TEACHER_ID
-    TEACHER_ID = id
+    TEACHER_ID = tid
     
-    query = f"SELECT free_id FROM teacher_free_slot WHERE teacher_id='{id}';"
+    query = f"SELECT free_id FROM teacher_free_slot WHERE teacher_id='{tid}';"
     res = mycursor.execute(query)
     fids = mycursor.fetchall()
     teacher_free_slots = []
@@ -161,15 +170,16 @@ def dashboard_teacher(id):
         # print(fid[0])
     # print(teacher_free_slots)
     for x in teacher_free_slots:
-        print(x)
+        # print(x)
+        pass
         
     # Fetch appointment requests for the teacher from the database
-    query = f"SELECT * FROM appointment WHERE teacher_id='{id}';"
+    query = f"SELECT * FROM appointment WHERE teacher_id='{tid}';"
     mycursor.execute(query)
     appointment_requests = mycursor.fetchall()
         
          # Fetch teacher's free slots from the database
-    query = f"SELECT * FROM teacher_free_slot WHERE teacher_id='{id}';"
+    query = f"SELECT * FROM teacher_free_slot WHERE teacher_id='{tid}';"
     mycursor.execute(query)
     teacher_free_slots = mycursor.fetchall()
     
@@ -211,14 +221,39 @@ def appointment_requests_status():
 def appointment_success():
     return render_template('appointment_success.html')
 
-@app.route('/teachlogout')
+@app.route('/tlogout')
 def teachlogout():
-    return render_template('dashboard_teacher.html')
+    return render_template('logout.html')
 
 @app.route('/slogout')
 def studentlogout():
-    return render_template('dashboard_student.html')
+    return render_template('logout.html')
 
+@app.route("/get/teacher/ka/free/slots/<tid>",methods=["POST"])
+def getTeacherKaFreeSlot(tid):
+    global STUDNET_NAME
+    global TEACHERS_SLOT
+    if request.method == "POST":
+        # print(tid)
+        query = f"SELECT free_id FROM teacher_free_slot WHERE teacher_id='{tid}'"
+        mycursor.execute(query)
+        # print(mycursor.fetchall())
+        data = mycursor.fetchall()
+        free_slots_response = []
+        # print(data)
+        for fid in data:
+            # print(fid)
+            # print(fid[0])
+            innerQuerry = f"SELECT free_date,free_time FROM free_slot WHERE free_id='{fid[0]}'"
+            mycursor.execute(innerQuerry)
+            data = mycursor.fetchall()
+            # print()
+            free_slots_response.append(data[0])
+        print(free_slots_response)
+        return render_template('dashboard_student.html' ,teacher_slots=free_slots_response)
+        # return jsonify({"message":"test"})
+        
+        
 
 if __name__ == '__main__':
     app.secret_key = 'your_secret_key'

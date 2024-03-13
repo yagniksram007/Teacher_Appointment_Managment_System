@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-         <h1>Welcome, Naizil</h1>
+         <h1>Welcome,{{ student_name[1] }} </h1>
 
         <!-- View Available Teachers -->
 <section>
@@ -18,11 +18,11 @@
             <tr>
                 <th>Teacher ID</th>
                 <th>Teacher Name</th>
-                <th>Action</th>
+                <!-- <th>Action</th> -->
             </tr>
         </thead>
         <tbody>
-            {% for teacher in available_teachers %}
+            <!-- {% for teacher in available_teachers %}
                 <tr>
                     <td>{{ teacher[0] }}</td>
                     <td>{{ teacher[1] }}</td>
@@ -32,73 +32,68 @@
                         <button onclick="viewTeacherSlots('{{ teacher[0] }}', '{{ teacher[1] }}')">View Slots</button>
                     </td>
                 </tr>
-            {% endfor %}
+            {% endfor %} -->
+            {% for teacher in available_teachers %}
+            <tr>
+                <td class="tid">{{ teacher[0] }}</td>
+                <td>{{ teacher[1] }}</td>
+                <!-- <td><button value='{{ teacher[0] }}' onclick="console.log(`${this.value}`);">view slots</button></td> -->
+            </tr>
+            {% endfor %} 
         </tbody>
     </table>
 </section>
 
+<!-- console.log(`/get/teacher/ka/free/slots/${document.getElementById('teacher_id').value}`); -->
+<!-- action="/get/teacher/ka/free/slots/" -->
 
 <label for="teacher">Select a Teacher:</label>
-<select name="teacher" id="teacher">
+<form  name="myform" id="myform" method="post">
+<select name="tname" id="teacher_id" onchange="console.log(document.getElementById('myform').action=`/get/teacher/ka/free/slots/${this.value}`);;">
+    <!-- myform.action = `/get/teacher/ka/free/slots/${document.getElementById('teacher_id').value}`; -->
     {% for teacher in available_teachers %}
-        <option value="{{ teacher.teacher_id }}">{{ teacher.tname }}</option>
+        <option value="{{ teacher[0] }}">{{ teacher[1] , teacher[0] }}</option>
     {% endfor %}
 </select>
+<button type="submit">GET</button>
+</form>
 
-
-        <!-- Request Appointment -->
-        <section id="requestAppointmentSection" style="display: none;">
-            <h3>Request Appointment</h3>
-            <form action="/request-appointment" method="post">
-                <label for="selectedSlot">Select a Slot:</label>
-                <select name="selectedSlot" id="selectedSlot" required>
-                    <!-- Teacher slots will be dynamically added here -->
-                </select>
-
-                <button type="submit">Request Appointment</button>
-            </form>
-        </section>
-
-        <!-- Appointment Requests Status -->
-        <section>
-            <h3>Appointment Requests Status</h3>
-            <ul>
-                <li>
-                    <span>Teacher Name</span>
-                    <span>Status: Pending</span>
-                </li>
-                <!-- Add more appointment requests as needed -->
-            </ul>
-        </section>
-
-        <!-- Logout Button -->
-
-    
-<section>
-    <h3>Want to logout?</h3>
-    <form action="/logout" method="post">
-        <button type="submit">Logout</button>
+<section id="requestAppointmentSection">
+    <h3>Request Appointment</h3>
+    <form action="/request-appointment" method="post">
+        <label for="selectedSlot">Select a Slot:</label>
+        <select name="selectedSlot" id="selectedSlot" required>
+            {% for slot in teacher_slots %}
+            <option value="{{ slot[0] }}">{{ slot[0] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Request Appointment</button>
     </form>
 </section>
 
 
-</div> <!-- Closing div for the container -->
+       
+
+        <!-- Logout Button -->
+
+    
+        <section>
+            <h3>Want to logout?</h3>
+            <form action="/slogout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </section>
+
+
+        </div> <!-- Closing div for the container -->
     </div>
 
     <script src="static/js/script.js"></script>
 
 
-    <script>
-        function viewTeacherSlots(teacherId) {
-            // Code to fetch and display teacher's free slots
-            // Update #teacherName, #teacherSlotsList, and show #teacherSlotsSection
-            // Example: document.getElementById("teacherName").innerText = "Teacher Name";
-            //          document.getElementById("teacherSlotsList").innerHTML = "<li>Slot 1</li><li>Slot 2</li>";
-            //          document.getElementById("teacherSlotsSection").style.display = "block";
-
-            // For demonstration purposes, toggle visibility of the appointment request section
-            document.getElementById("requestAppointmentSection").style.display = "block";
-        }
-    </script>
+   
 </body>
 </html>
+
+
+<!-- query = "SELECT T.teacher_id, F.free_date, F.free_time FROM teacher_free_slot T, free_slot F WHERE T.free_id = F.free_id;" -->

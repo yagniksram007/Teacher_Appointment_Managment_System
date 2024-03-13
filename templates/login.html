@@ -26,10 +26,12 @@
         </form>
     
     </div>
+        {% if show_alert %}
         <script>
-            // Show an alert if show_alert is True
+        // Show an alert if show_alert is True
             alert("Invalid credentials!");
         </script>
+        {% endif %}
         
 </body>
 </html>
